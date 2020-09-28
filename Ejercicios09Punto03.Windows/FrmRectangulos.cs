@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using Ejercicios09Punto03.BL;
 using Ejercicios09Punto03.DL;
+using Microsoft.VisualBasic;
 
 namespace Ejercicios09Punto03.Windows
 {
@@ -17,6 +18,7 @@ namespace Ejercicios09Punto03.Windows
         private void FrmRectangulos_Load(object sender, EventArgs e)
         {
             repositorio=new RepositorioDeRectangulos();
+            
             var cantidad = repositorio.GetCantidad();
             if (cantidad==0)
             {
@@ -27,6 +29,13 @@ namespace Ejercicios09Punto03.Windows
                 return;
             }
 
+            CantidadTextBox.Enabled = false;
+            CantidadTextBox.Text = cantidad.ToString();
+            ActualizarGrilla();
+        }
+
+        private void ActualizarGrilla()
+        {
             lista = repositorio.GetLista();
             MostrarListaEnGrilla();
         }
@@ -66,6 +75,12 @@ namespace Ejercicios09Punto03.Windows
 
         private void SalirToolStripButton_Click(object sender, EventArgs e)
         {
+            //DialogResult dr = MessageBox.Show("¿Desea guardar los datos en el archivo?", "Confirmar",
+            //    MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+            //if (dr==DialogResult.Yes)
+            //{
+                repositorio.GuardarDatosEnArchivo();
+            //}
             Application.Exit();
         }
 
@@ -83,8 +98,14 @@ namespace Ejercicios09Punto03.Windows
             SetearFila(r,rectangulo);
             AgregarFila(r);
             repositorio.Agregar(rectangulo);
+            ActualizarCantidadDeRegistros();
             MessageBox.Show($"Rectángulo agregado Existen {repositorio.GetCantidad()} rectángulos", "Mensaje",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void ActualizarCantidadDeRegistros()
+        {
+            CantidadTextBox.Text = repositorio.GetCantidad().ToString();
         }
 
         private void BorrarToolStripButton_Click(object sender, EventArgs e)
@@ -102,6 +123,7 @@ namespace Ejercicios09Punto03.Windows
             {
                 DatosDataGridView.Rows.Remove(r);
                 repositorio.Borrar(rectangulo);
+                ActualizarCantidadDeRegistros();
                 MessageBox.Show($"Rectángulo borrado Existen {repositorio.GetCantidad()} rectángulos", "Mensaje",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
@@ -125,10 +147,37 @@ namespace Ejercicios09Punto03.Windows
             {
                 rectangulo = frm.GetRectangulo();
                 SetearFila(r,rectangulo);
+                repositorio.EstaModificado = true;
                 MessageBox.Show($"Rectángulo Editado Existen {repositorio.GetCantidad()} rectángulos", "Mensaje",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             }
+
+        }
+
+        private void AscXladomayorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            lista = repositorio.OrdenarAscPorLadoMayor();
+            MostrarListaEnGrilla();
+        }
+
+        private void DescXLadomayorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            lista = repositorio.OrdenarDescPorLadoMayor();
+            MostrarListaEnGrilla();
+
+        }
+
+        private void ActualizarToolStripButton_Click(object sender, EventArgs e)
+        {
+           ActualizarGrilla();
+        }
+
+        private void FiltrarToolStripButton_Click(object sender, EventArgs e)
+        {
+            int valorFiltro = 15;
+            lista = repositorio.Filtrar(valorFiltro);
+            MostrarListaEnGrilla();
 
         }
     }
